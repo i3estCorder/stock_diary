@@ -114,6 +114,7 @@ export const PortfolioSidebar: React.FC<PortfolioSidebarProps> = ({
 }) => {
   const [editingSymbol, setEditingSymbol] = React.useState<string | null>(null);
   const [editPrice, setEditPrice] = React.useState<string>('');
+  const [activeTab, setActiveTab] = React.useState<'list' | 'ratios'>('list');
 
   // 비중, 통화별, 종목별 및 소유자별 자산 비율 계산
   const metrics = React.useMemo(() => {
@@ -203,7 +204,7 @@ export const PortfolioSidebar: React.FC<PortfolioSidebarProps> = ({
 
   return (
     <div className="portfolio-sidebar glass" style={{ display: 'flex', flexDirection: 'column' }}>
-      <div className="sidebar-header">
+      <div className="sidebar-header" style={{ paddingBottom: '8px' }}>
         <h3>보유 종목</h3>
         {selectedSymbol && (
           <button className="clear-filter-btn" onClick={() => onSelectSymbol(null)}>
@@ -213,6 +214,55 @@ export const PortfolioSidebar: React.FC<PortfolioSidebarProps> = ({
       </div>
 
       {holdings.length > 0 && (
+        <div className="sidebar-tabs" style={{
+          display: 'flex',
+          borderBottom: '1px solid var(--border-color)',
+          marginBottom: '16px',
+          gap: '4px',
+          padding: '0 4px'
+        }}>
+          <button
+            type="button"
+            onClick={() => setActiveTab('list')}
+            style={{
+              flex: 1,
+              padding: '8px 12px',
+              background: activeTab === 'list' ? 'rgba(255, 255, 255, 0.05)' : 'transparent',
+              border: 'none',
+              borderBottom: activeTab === 'list' ? '2px solid var(--color-accent)' : '2px solid transparent',
+              color: activeTab === 'list' ? '#fff' : 'var(--text-secondary)',
+              fontSize: '12.5px',
+              fontWeight: '600',
+              cursor: 'pointer',
+              transition: 'all var(--transition-normal)',
+              outline: 'none'
+            }}
+          >
+            📂 자산 목록
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab('ratios')}
+            style={{
+              flex: 1,
+              padding: '8px 12px',
+              background: activeTab === 'ratios' ? 'rgba(255, 255, 255, 0.05)' : 'transparent',
+              border: 'none',
+              borderBottom: activeTab === 'ratios' ? '2px solid var(--color-accent)' : '2px solid transparent',
+              color: activeTab === 'ratios' ? '#fff' : 'var(--text-secondary)',
+              fontSize: '12.5px',
+              fontWeight: '600',
+              cursor: 'pointer',
+              transition: 'all var(--transition-normal)',
+              outline: 'none'
+            }}
+          >
+            📊 자산 비중
+          </button>
+        </div>
+      )}
+
+      {activeTab === 'ratios' && holdings.length > 0 && (
         <div className="portfolio-ratios" style={{
           display: 'flex',
           flexDirection: 'column',
@@ -365,7 +415,8 @@ export const PortfolioSidebar: React.FC<PortfolioSidebarProps> = ({
           <p>보유 주식 없음</p>
         </div>
       ) : (
-        <div className="sidebar-holding-list" style={{ flexGrow: 1 }}>
+        activeTab === 'list' && (
+          <div className="sidebar-holding-list" style={{ flexGrow: 1, overflowY: 'auto' }}>
           {holdings.map((h) => {
             const currentPrice = currentPrices[h.symbol] || h.averagePrice;
             const currency = getStockCurrency(h.symbol);
@@ -595,6 +646,7 @@ export const PortfolioSidebar: React.FC<PortfolioSidebarProps> = ({
             );
           })}
         </div>
+        )
       )}
 
       {/* 초기 포트폴리오 일괄 설정 버튼 */}
